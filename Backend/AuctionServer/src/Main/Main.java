@@ -15,12 +15,13 @@ public class Main {
     private static ArrayList<AuctionHandler> auctionHandlers = new ArrayList<AuctionHandler>();
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     private static final int port = 9090;
+    private static Auction tempAuc = new Auction("Temp", 1, 10,1);
 
     public static void main(String[] args) throws IOException {
         ServerSocket listener = new ServerSocket(9090);
 
         //TEMP
-        Auction tempAuc = new Auction("Temp", 1, 10);
+
 
         while(true){
             System.out.println("Waiting for client connection...");

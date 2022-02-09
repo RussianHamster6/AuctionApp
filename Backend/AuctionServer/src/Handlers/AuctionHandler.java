@@ -29,22 +29,33 @@ public class AuctionHandler implements Runnable{
     public void run() {
         try{
             while(true){
-                Bid input = (Bid) in.readObject();
-
-                if(input.amount > this.auction.currentHighBid.amount){
-                    updateAuction(new Bid(input.bidder, input.amount));
+                Object input = in.readObject();
+                var x = input.getClass();
+                if(x.isInstance("string")){
+                    out.writeObject(auction);
+                }
+                else{
+                    Bid bid = (Bid) input;
+                    System.out.println(bid.amount);
+                    if (bid.amount > this.auction.currentHighBid.amount) {
+                        updateAuction(bid);
+                    }
                 }
             }
         }
-        catch (IOException | ClassNotFoundException e){
+        catch (IOException | ClassNotFoundException | ClassCastException e){
             e.printStackTrace();
         }
     }
 
     private void updateAuction(Bid newBid) throws IOException {
+        this.auction.registerBid(newBid);
+
         for (AuctionHandler aHandler : clients ){
-            aHandler.auction.registerBid(newBid);
-            aHandler.out.writeObject(aHandler.auction);
+            aHandler.out.reset();
+            aHandler.auction = this.auction;
+            aHandler.out.writeObject(this.auction);
         }
+        //Write to mocking framework
     }
 }

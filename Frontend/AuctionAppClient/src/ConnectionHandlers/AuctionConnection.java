@@ -1,30 +1,41 @@
 package ConnectionHandlers;
 
+import Controllers.AuctionController;
+import Models.Auction;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 
 public class AuctionConnection implements Runnable {
     private Socket server;
-    private BufferedReader in;
+    private ObjectInputStream in;
+    private AuctionController auctionController;
+    public Auction auction;
 
-    public AuctionConnection(Socket s) throws IOException {
+    public AuctionConnection(Socket s, AuctionController controller) throws IOException {
         server = s;
-        in = new BufferedReader(new InputStreamReader(server.getInputStream()));
+        in = new ObjectInputStream(server.getInputStream());
+        this.auctionController = controller;
     }
 
     @Override
     public void run() {
             try {
                 while(true) {
-                    String serverResponse = in.readLine();
+                    Auction serverResponse = null;
+                    serverResponse = (Auction) in.readObject();
 
                     if(serverResponse == null) break;
 
-                    System.out.println(serverResponse);
+                    System.out.println("Server Response: ");
+                    System.out.println(serverResponse.itemName);
+                    this.auctionController.updateAucFields(serverResponse);
+
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }finally {
                 try {
