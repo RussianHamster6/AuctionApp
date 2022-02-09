@@ -2,6 +2,8 @@ package ConnectionHandlers;
 
 import Controllers.AuctionController;
 import Models.Auction;
+import Models.Bid;
+import javafx.application.Platform;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,14 +28,26 @@ public class AuctionConnection implements Runnable {
             try {
                 while(true) {
                     Auction serverResponse = null;
-                    serverResponse = (Auction) in.readObject();
+                    String strServerResponse = null;
 
-                    if(serverResponse == null) break;
+                    Object input = in.readObject();
+                    var x = input.getClass();
 
-                    System.out.println("Server Response: ");
-                    System.out.println(serverResponse.itemName);
-                    this.auctionController.updateAucFields(serverResponse);
+                    if(x.isInstance("string")){
+                        strServerResponse = (String) input;
+                        System.out.println(strServerResponse);
+                        Platform.runLater(() -> {
+                            auctionController.alert("This auction has ended");
+                        });
+                    }
+                    else{
+                        serverResponse = (Auction) input;
+                        if(serverResponse == null) break;
 
+                        System.out.println("Server Response: ");
+                        System.out.println(serverResponse.itemName);
+                        this.auctionController.updateAucFields(serverResponse);
+                    }
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();

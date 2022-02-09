@@ -1,6 +1,7 @@
 package Models;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Auction implements Serializable {
@@ -8,13 +9,15 @@ public class Auction implements Serializable {
     public Bid currentHighBid;
     public float bidIncrement;
     public ArrayList<Bid> auctionHistory;
+    public LocalDateTime auctionEndDateTime;
 
-    public Auction (String itemName, float bidIncrement, float startingPrice){
+    public Auction (String itemName, float bidIncrement, float startingPrice, int minsTillAucEnd){
         this.itemName = itemName;
         this.bidIncrement = bidIncrement;
         this.auctionHistory = new ArrayList<Bid>();
         this.currentHighBid = new Bid("starting price", startingPrice);
         this.auctionHistory.add(this.currentHighBid);
+        this.auctionEndDateTime = LocalDateTime.now().plusMinutes(minsTillAucEnd);
     }
 
     //returns true if success, false if failed.

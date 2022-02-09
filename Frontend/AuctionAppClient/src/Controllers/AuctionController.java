@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -85,5 +86,11 @@ public class AuctionController implements Initializable {
 
         new Thread(task).run();
 
+    }
+
+    public void alert(String alertMessage){
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setContentText(alertMessage);
+        a.show();
     }
 }
