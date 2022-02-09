@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuctionController">
+   <children>
+      <Text fx:id="itemNameText" layoutX="418.0" layoutY="52.0" strokeType="OUTSIDE" strokeWidth="0.0" text="ITEM NAME" />
+      <Text layoutX="346.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Current Highest Bid" />
+      <TextArea fx:id="auctionLog" layoutX="14.0" layoutY="39.0" prefHeight="347.0" prefWidth="294.0" />
+      <Text layoutX="14.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Auction History:" />
+      <Button fx:id="bidButton" layoutX="370.0" layoutY="200.0" mnemonicParsing="false" onAction="#BidButtonPress" prefHeight="25.0" prefWidth="159.0" text="Bid" />
+      <Text layoutX="356.0" layoutY="136.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bid Incrememnt" />
+      <TextField fx:id="highBidText" layoutX="459.0" layoutY="76.0" prefHeight="25.0" prefWidth="118.0" />
+      <TextField fx:id="bidIncrementText" layoutX="459.0" layoutY="119.0" prefHeight="25.0" prefWidth="118.0" />
+   </children>
+</AnchorPane>
