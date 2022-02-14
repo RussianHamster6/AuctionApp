@@ -2,6 +2,7 @@ package Handlers;
 
 import Models.Auction;
 import Models.Bid;
+import Repository.AuctionRepository;
 
 import java.io.*;
 import java.net.Socket;
@@ -21,11 +22,13 @@ public class AuctionHandler implements Runnable{
     private ArrayList<AuctionHandler> clients;
     private Auction auction;
     public Boolean terminateFlag = true;
+    private AuctionRepository auctionRepository;
 
-    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, Auction auction) throws IOException {
+    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, Auction auction, AuctionRepository repository) throws IOException {
         this.socket = client;
         this.clients = clients;
         this.auction = auction;
+        this.auctionRepository = repository;
         InputStream inputStream = client.getInputStream();
         OutputStream outputStream = client.getOutputStream();
         out = new ObjectOutputStream(outputStream);

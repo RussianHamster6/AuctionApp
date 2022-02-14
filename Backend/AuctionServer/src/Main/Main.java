@@ -1,6 +1,7 @@
 package Main;
 import Handlers.AuctionHandler;
 import Models.Auction;
+import Repository.AuctionRepository;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -21,7 +22,7 @@ public class Main {
         ServerSocket listener = new ServerSocket(9090);
 
         //TEMP
-
+        AuctionRepository auctionRepository = new AuctionRepository();
 
         while(true){
             System.out.println("Waiting for client connection...");
@@ -33,7 +34,7 @@ public class Main {
             //Get Auction They want to Connect to
 
             //adds new auctionThread to auctionHandlers list
-            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, tempAuc);
+            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, tempAuc, auctionRepository);
             auctionHandlers.add(auctionThread);
 
             pool.execute(auctionThread);
