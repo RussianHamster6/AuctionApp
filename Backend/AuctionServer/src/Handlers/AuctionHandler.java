@@ -24,10 +24,9 @@ public class AuctionHandler implements Runnable{
     public Boolean terminateFlag = true;
     private AuctionRepository auctionRepository;
 
-    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, Auction auction, AuctionRepository repository) throws IOException {
+    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, AuctionRepository repository) throws IOException {
         this.socket = client;
         this.clients = clients;
-        this.auction = auction;
         this.auctionRepository = repository;
         InputStream inputStream = client.getInputStream();
         OutputStream outputStream = client.getOutputStream();
@@ -37,23 +36,25 @@ public class AuctionHandler implements Runnable{
 
     @Override
     public void run() {
-        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(now, auction.auctionEndDateTime);
-
-        service.schedule(new AuctionTerminationHandler(this), duration.getSeconds(), TimeUnit.SECONDS);
 
         try{
             while(terminateFlag){
                 Object input = in.readObject();
                 var x = input.getClass();
                 if(x.isInstance("string")){
+                    String aucString = (String) input;
+                    //Get the Auction they want to connect to
+                    this.auction = this.auctionRepository.getAuctionByName(aucString);
                     out.writeObject(auction);
+                    ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+
+                    LocalDateTime now = LocalDateTime.now();
+                    Duration duration = Duration.between(now, auction.auctionEndDateTime);
+
+                    service.schedule(new AuctionTerminationHandler(this), duration.getSeconds(), TimeUnit.SECONDS);
                 }
                 else{
                     Bid bid = (Bid) input;
-                    System.out.println(bid.amount);
                     if (bid.amount > this.auction.currentHighBid.amount) {
                         updateAuction(bid);
                     }
@@ -83,4 +84,5 @@ public class AuctionHandler implements Runnable{
         }
         //Write to mocking framework
     }
+
 }

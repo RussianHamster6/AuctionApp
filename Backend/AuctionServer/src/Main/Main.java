@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 
 public class Main {
 
-    private static ArrayList<AuctionHandler> auctionHandlers = new ArrayList<AuctionHandler>();
+    private static ArrayList<AuctionHandler> auctionHandlers = new ArrayList<>();
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
     private static final int port = 9090;
     //private static Auction tempAuc = new Auction("Temp", 1, 10,1);
@@ -21,18 +21,12 @@ public class Main {
     public static void main(String[] args) throws IOException {
         ServerSocket listener = new ServerSocket(9090);
 
-
         //TEMP
         AuctionRepository auctionRepository = Mockito.mock(AuctionRepository.class);
         //AuctionList config
         ArrayList<Auction> aucList = new ArrayList<>();
-        aucList.add(new Auction("Temp", 1, 10,1));
-        aucList.add(new Auction("Auction for Stuff",10,100,5));
-        //GetAuctionByName mocks
-        Mockito.when(auctionRepository.getAuctionByName("Temp")).thenReturn(aucList.get(0));
-        Mockito.when(auctionRepository.getAuctionByName(("Auction for Stuff"))).thenReturn(aucList.get(1));
-        //GetAllAuctionMock
-        Mockito.when(auctionRepository.getAllAuctions()).thenReturn(aucList);
+
+        configureMocks(aucList, auctionRepository);
 
         while(true){
             System.out.println("Waiting for client connection...");
@@ -41,15 +35,22 @@ public class Main {
             Socket client = listener.accept();
             System.out.println("Connected to client!");
 
-            //Get Auction They want to Connect to
-            var auctionGet = auctionRepository.getAuctionByName("Temp");
-
             //adds new auctionThread to auctionHandlers list
-            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, auctionGet, auctionRepository);
+            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, auctionRepository);
             auctionHandlers.add(auctionThread);
 
             pool.execute(auctionThread);
         }
 
+    }
+
+    public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository){
+        aucList.add(new Auction("Temp", 1, 10,1));
+        aucList.add(new Auction("Auction for Stuff",10,100,5));
+        //GetAuctionByName mocks
+        Mockito.when(auctionRepository.getAuctionByName("Temp")).thenReturn(aucList.get(0));
+        Mockito.when(auctionRepository.getAuctionByName(("Auction for Stuff"))).thenReturn(aucList.get(1));
+        //GetAllAuctionMock
+        Mockito.when(auctionRepository.getAllAuctions()).thenReturn(aucList);
     }
 }
