@@ -53,7 +53,7 @@ public class AuctionController implements Initializable {
             out = new ObjectOutputStream(socket.getOutputStream());
 
             new Thread(aucConn).start();
-            out.writeObject("Connect");
+            out.writeObject("Auction for Stuff");
 
         } catch (UnknownHostException e){
             System.err.println("Unknown Host");
