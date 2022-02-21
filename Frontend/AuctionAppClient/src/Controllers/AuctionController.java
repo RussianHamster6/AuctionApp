@@ -20,7 +20,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public class AuctionController implements Initializable {
+public class AuctionController extends Controller implements Initializable {
 
     @FXML
     public TextField highBidText;
@@ -31,8 +31,6 @@ public class AuctionController implements Initializable {
     @FXML
     public TextArea auctionLog;
 
-    private Socket socket;
-    private AuctionConnection aucConn;
     private ObjectOutputStream out;
     public Auction auction;
 
@@ -48,8 +46,8 @@ public class AuctionController implements Initializable {
         int portNumber = 9090;
 
         try {
-            socket = new Socket(hostName, portNumber);
-            aucConn = new AuctionConnection(socket, this);
+            Socket socket = new Socket(hostName, portNumber);
+            AuctionConnection aucConn = new AuctionConnection(socket, this);
             out = new ObjectOutputStream(socket.getOutputStream());
 
             new Thread(aucConn).start();
@@ -86,11 +84,5 @@ public class AuctionController implements Initializable {
 
         new Thread(task).run();
 
-    }
-
-    public void alert(String alertMessage){
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setContentText(alertMessage);
-        a.show();
     }
 }

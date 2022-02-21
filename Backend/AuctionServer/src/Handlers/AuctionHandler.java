@@ -43,6 +43,14 @@ public class AuctionHandler implements Runnable{
                 var x = input.getClass();
                 if(x.isInstance("string")){
                     String aucString = (String) input;
+
+                    if(aucString == "GETALLAUC"){
+                        //gets all auctions and writes that out
+                        var allAuctions = this.auctionRepository.getAllAuctions();
+                        out.writeObject(allAuctions);
+                        //sets terminate flag to false so the thread closes.
+                        terminateFlag = false;
+                    }
                     //Get the Auction they want to connect to
                     this.auction = this.auctionRepository.getAuctionByName(aucString);
                     out.writeObject(auction);
