@@ -14,9 +14,8 @@ import java.util.concurrent.Executors;
 public class Main {
 
     private static ArrayList<AuctionHandler> auctionHandlers = new ArrayList<>();
-    private static ExecutorService pool = Executors.newFixedThreadPool(4);
+    private static ExecutorService pool = Executors.newFixedThreadPool(50);
     private static final int port = 9090;
-    //private static Auction tempAuc = new Auction("Temp", 1, 10,1);
 
     public static void main(String[] args) throws IOException {
         ServerSocket listener = new ServerSocket(9090);

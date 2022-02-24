@@ -6,8 +6,16 @@ import Models.Auction;
 import Models.AuctionTableRow;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -20,7 +28,16 @@ import java.util.ResourceBundle;
 public class AuctionMenuController extends Controller implements Initializable {
 
     @FXML
-    TableView AuctionTable;
+    TableView<AuctionTableRow> AuctionTable;
+
+    @FXML
+    TableColumn<AuctionTableRow, String> itemNameCol;
+    @FXML
+    TableColumn<AuctionTableRow, Float> startingBidCol;
+    @FXML
+    TableColumn<AuctionTableRow, Float> biddingIncrementCol;
+    @FXML
+    TableColumn<AuctionTableRow, Boolean> favCol;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -32,6 +49,12 @@ public class AuctionMenuController extends Controller implements Initializable {
             Socket socket = new Socket(hostName, portNumber);
             AuctionMenuConnection aucConn = new AuctionMenuConnection(socket, this);
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+
+            //Set Column cell values
+            itemNameCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
+            startingBidCol.setCellValueFactory(new PropertyValueFactory<>("startingBid"));
+            biddingIncrementCol.setCellValueFactory(new PropertyValueFactory<>("biddingIncrement"));
+            favCol.setCellValueFactory(new PropertyValueFactory<>("favourite"));
 
             new Thread(aucConn).start();
             out.writeObject("GETALLAUC");
@@ -45,12 +68,23 @@ public class AuctionMenuController extends Controller implements Initializable {
     }
 
     public void populateTable(ArrayList<Auction> auctionArrayList){
-        ArrayList<AuctionTableRow> rowArrayList = new ArrayList<AuctionTableRow>();
-
         for (Auction a : auctionArrayList){
-            rowArrayList.add(new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement));
+            AuctionTable.getItems().add(new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement));
         }
+    }
 
-        AuctionTable.setItems((ObservableList) rowArrayList.stream().toList());
+    public void viewAuction(MouseEvent event) throws IOException{
+        if (event.getClickCount() > 1) {
+
+            Stage stage = (Stage) AuctionTable.getScene().getWindow();
+
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/views/auction.fxml"));
+            AuctionController auctionController = new AuctionController(AuctionTable.getSelectionModel().getSelectedItem().getItemName());
+            loader.setController(auctionController);
+            Parent root = loader.load();
+
+            stage.setScene(new Scene(root));
+        }
     }
 }

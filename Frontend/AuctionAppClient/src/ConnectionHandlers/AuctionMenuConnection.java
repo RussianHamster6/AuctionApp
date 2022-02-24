@@ -1,12 +1,8 @@
 package ConnectionHandlers;
 
-import Controllers.AuctionController;
 import Controllers.AuctionMenuController;
 import Models.Auction;
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.scene.control.TableView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,29 +13,28 @@ public class AuctionMenuConnection implements Runnable{
     private Socket server;
     private ObjectInputStream in;
     private AuctionMenuController auctionMenuController;
+    private Boolean runFlag = true;
 
-    public AuctionMenuConnection(Socket s, AuctionMenuController AMC){
+    public AuctionMenuConnection(Socket s, AuctionMenuController AMC) throws IOException {
         this.server = s;
+        in = new ObjectInputStream(server.getInputStream());
         this.auctionMenuController = AMC;
     }
 
     @Override
     public void run() {
         try {
-            while(true) {
-                Auction serverResponse = null;
-                String strServerResponse = null;
-
+            while(runFlag) {
                 Object input = in.readObject();
                 var x = input.getClass();
 
                 if(x.isInstance(new ArrayList<Auction>())){
                     //Expected response
-                    strServerResponse = (String) input;
-                    System.out.println(strServerResponse);
+                    ArrayList<Auction> serverResponse = (ArrayList<Auction>) input;
                     Platform.runLater(() -> {
-                        auctionMenuController.alert("This auction has ended");
+                        auctionMenuController.populateTable(serverResponse);
                     });
+                    this.runFlag = false;
                 }
                 else{
                     Platform.runLater(() -> {
@@ -50,12 +45,6 @@ public class AuctionMenuConnection implements Runnable{
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        }finally {
-            try {
-                in.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

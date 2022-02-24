@@ -6,11 +6,15 @@ import Models.Bid;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -32,11 +36,26 @@ public class AuctionController extends Controller implements Initializable {
     public TextArea auctionLog;
 
     private ObjectOutputStream out;
+    private String auctionName;
     public Auction auction;
+
+    public AuctionController(String aucName){
+        this.auctionName = aucName;
+    }
 
     public void BidButtonPress() throws IOException {
         Bid newBid = new Bid("ClientId", auction.currentHighBid.amount + auction.bidIncrement);
         out.writeObject(newBid);
+    }
+
+    public void BackButtonPress() throws IOException {
+        Stage stage = (Stage) highBidText.getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));
+        stage.setTitle("Auction App");
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     @Override
@@ -51,7 +70,7 @@ public class AuctionController extends Controller implements Initializable {
             out = new ObjectOutputStream(socket.getOutputStream());
 
             new Thread(aucConn).start();
-            out.writeObject("Auction for Stuff");
+            out.writeObject(auctionName);
 
         } catch (UnknownHostException e){
             System.err.println("Unknown Host");
