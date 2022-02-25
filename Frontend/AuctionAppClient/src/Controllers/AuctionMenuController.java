@@ -45,6 +45,7 @@ public class AuctionMenuController extends Controller implements Initializable {
     TextField searchText;
 
     public ObservableList<AuctionTableRow> ATRList;
+    private Boolean filterFav = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -104,20 +105,19 @@ public class AuctionMenuController extends Controller implements Initializable {
         }
     }
 
-    public void setFavourite(MouseEvent event){
+    public void setFavourite(){
         if(AuctionTable.getSelectionModel().getSelectedItem() != null) {
             var selectedVal = AuctionTable.getSelectionModel().getSelectedItem();
             var newItem = selectedVal;
-            var tableItems = AuctionTable.getItems();
+            var tableItems = ATRList;
             if (selectedVal.isFavourite()) {
                 newItem.setFavourite(false);
-                tableItems.set(tableItems.indexOf(selectedVal), newItem);
             } else {
                 newItem.setFavourite(true);
-                tableItems.set(tableItems.indexOf(selectedVal), newItem);
             }
+            tableItems.set(tableItems.indexOf(selectedVal), newItem);
             ATRList = tableItems;
-            AuctionTable.setItems(tableItems);
+            AuctionTable.setItems(ATRList);
         }
     }
 
@@ -143,6 +143,20 @@ public class AuctionMenuController extends Controller implements Initializable {
     }
 
     public void filterFavourite(){
-        //filter for favourite
+        FilteredList<AuctionTableRow> AFiltered = new FilteredList<>(ATRList);
+
+        if(!filterFav){
+            filterFav = true;
+
+            Predicate<AuctionTableRow> pred = auctionTableRow -> auctionTableRow.isFavourite();
+
+            AFiltered.setPredicate(pred);
+        }
+        else{
+            filterFav = false;
+            AuctionTable.setItems(ATRList);
+        }
+
+        AuctionTable.setItems(AFiltered);
     }
 }
