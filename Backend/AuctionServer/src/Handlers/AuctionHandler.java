@@ -43,8 +43,11 @@ public class AuctionHandler implements Runnable{
                 var x = input.getClass();
                 if(x.isInstance("string")){
                     String aucString = input.toString();
-
-                    if(aucString.equals("GETALLAUC")){
+                    if(aucString.equals("GOINGBACK")){
+                        clients.remove(this);
+                        terminateFlag = false;
+                    }
+                    else if(aucString.equals("GETALLAUC")){
                         //gets all auctions and writes that out
                         ArrayList<Auction> allAuctions = this.auctionRepository.getAllAuctions();
                         out.writeObject(allAuctions);

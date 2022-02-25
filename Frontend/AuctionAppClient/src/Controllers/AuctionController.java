@@ -49,6 +49,7 @@ public class AuctionController extends Controller implements Initializable {
     }
 
     public void BackButtonPress() throws IOException {
+        out.writeObject("GOINGBACK");
         Stage stage = (Stage) highBidText.getScene().getWindow();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
