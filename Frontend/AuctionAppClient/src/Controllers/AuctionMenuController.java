@@ -5,17 +5,18 @@ import ConnectionHandlers.AuctionMenuConnection;
 import Models.Auction;
 import Models.AuctionTableRow;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -24,11 +25,13 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 public class AuctionMenuController extends Controller implements Initializable {
 
     @FXML
-    TableView<AuctionTableRow> AuctionTable;
+    public TableView<AuctionTableRow> AuctionTable;
 
     @FXML
     TableColumn<AuctionTableRow, String> itemNameCol;
@@ -38,9 +41,14 @@ public class AuctionMenuController extends Controller implements Initializable {
     TableColumn<AuctionTableRow, Float> biddingIncrementCol;
     @FXML
     TableColumn<AuctionTableRow, Boolean> favCol;
+    @FXML
+    TextField searchText;
+
+    public ObservableList<AuctionTableRow> ATRList;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         //Do Connectiony Stuff
         String hostName = "127.0.0.1";
         int portNumber = 9090;
@@ -65,26 +73,76 @@ public class AuctionMenuController extends Controller implements Initializable {
             System.err.println("Issue with Socket connection");
             e.printStackTrace();
         }
+
+        //set listener on searchtext
+        searchText.textProperty().addListener((observable,oldvalue,newvalue) -> {
+            searchItem(newvalue);
+        });
     }
 
     public void populateTable(ArrayList<Auction> auctionArrayList){
         for (Auction a : auctionArrayList){
-            AuctionTable.getItems().add(new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement));
+            var toAdd = new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement);
+            AuctionTable.getItems().add(toAdd);
         }
     }
 
     public void viewAuction(MouseEvent event) throws IOException{
-        if (event.getClickCount() > 1) {
+        if(AuctionTable.getSelectionModel().getSelectedItem() != null) {
+            if (event.getClickCount() > 1) {
 
-            Stage stage = (Stage) AuctionTable.getScene().getWindow();
+                Stage stage = (Stage) AuctionTable.getScene().getWindow();
 
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/views/auction.fxml"));
-            AuctionController auctionController = new AuctionController(AuctionTable.getSelectionModel().getSelectedItem().getItemName());
-            loader.setController(auctionController);
-            Parent root = loader.load();
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("/views/auction.fxml"));
+                AuctionController auctionController = new AuctionController(AuctionTable.getSelectionModel().getSelectedItem().getItemName());
+                loader.setController(auctionController);
+                Parent root = loader.load();
 
-            stage.setScene(new Scene(root));
+                stage.setScene(new Scene(root));
+            }
         }
+    }
+
+    public void setFavourite(MouseEvent event){
+        if(AuctionTable.getSelectionModel().getSelectedItem() != null) {
+            var selectedVal = AuctionTable.getSelectionModel().getSelectedItem();
+            var newItem = selectedVal;
+            var tableItems = AuctionTable.getItems();
+            if (selectedVal.isFavourite()) {
+                newItem.setFavourite(false);
+                tableItems.set(tableItems.indexOf(selectedVal), newItem);
+            } else {
+                newItem.setFavourite(true);
+                tableItems.set(tableItems.indexOf(selectedVal), newItem);
+            }
+            ATRList = tableItems;
+            AuctionTable.setItems(tableItems);
+        }
+    }
+
+    public void Deselect(){
+        AuctionTable.getSelectionModel().clearSelection();
+    }
+
+    public void searchItem(String searchString) {
+        FilteredList<AuctionTableRow> AFiltered = new FilteredList<>(ATRList);
+        if (searchString != null) {
+            Predicate<AuctionTableRow> pred = auctionTableRow -> {
+                if(auctionTableRow.getItemName().toLowerCase().contains(searchString.toLowerCase())){
+                    return true;
+                }
+                return false;
+            };
+            AFiltered.setPredicate(pred);
+        } else {
+            AuctionTable.setItems(ATRList);
+        }
+
+        AuctionTable.setItems(AFiltered);
+    }
+
+    public void filterFavourite(){
+        //filter for favourite
     }
 }

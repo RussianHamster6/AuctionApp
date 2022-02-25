@@ -28,7 +28,7 @@ public class AuctionConnection implements Runnable {
                     String strServerResponse = null;
 
                     Object input = in.readObject();
-                    
+
                     if(input == null) {
                         break;
                     }

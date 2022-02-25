@@ -33,6 +33,7 @@ public class AuctionMenuConnection implements Runnable{
                     ArrayList<Auction> serverResponse = (ArrayList<Auction>) input;
                     Platform.runLater(() -> {
                         auctionMenuController.populateTable(serverResponse);
+                        auctionMenuController.ATRList = auctionMenuController.AuctionTable.getItems();
                     });
                     this.runFlag = false;
                 }

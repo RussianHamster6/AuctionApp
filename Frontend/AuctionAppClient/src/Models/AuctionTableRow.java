@@ -1,5 +1,8 @@
 package Models;
 
+import javafx.beans.Observable;
+import javafx.collections.ObservableList;
+
 public class AuctionTableRow {
     private String itemName;
     private float startingBid;
@@ -26,6 +29,7 @@ public class AuctionTableRow {
     public boolean isFavourite(){
         return this.favourite;
     }
+
     //Setters
     public void setItemName(String itemName){
         this.itemName = itemName;

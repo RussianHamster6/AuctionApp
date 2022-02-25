@@ -8,15 +8,17 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.AuctionMenuController">
    <children>
-      <TableView fx:id="AuctionTable" onMouseClicked="#viewAuction" layoutX="39.0" layoutY="68.0" prefHeight="321.0" prefWidth="552.0">
+      <TableView fx:id="AuctionTable" layoutX="39.0" layoutY="91.0" onMouseClicked="#viewAuction" prefHeight="298.0" prefWidth="552.0">
         <columns>
-          <TableColumn fx:id="itemNameCol" prefWidth="138.0" text="Item" />
+           <TableColumn fx:id="itemNameCol" prefWidth="138.0" text="Item" />
             <TableColumn fx:id="startingBidCol" prefWidth="130.0" text="Starting Bid" />
             <TableColumn fx:id="biddingIncrementCol" prefWidth="136.0" text="Bidding Increment" />
             <TableColumn fx:id="favCol" prefWidth="147.0" text="Favourite" />
         </columns>
       </TableView>
-      <TextField layoutX="300.0" layoutY="23.0" prefHeight="25.0" prefWidth="129.0" />
-      <Button layoutX="446.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="116.0" text="Search Item" />
+      <TextField fx:id="searchText" layoutX="325.0" layoutY="23.0" prefHeight="25.0" prefWidth="261.0" promptText="Search Auction Name" />
+      <Button layoutX="39.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="Log Out" />
+      <Button layoutX="182.0" layoutY="23.0" mnemonicParsing="false" onMouseClicked="#Deselect" prefHeight="25.0" prefWidth="130.0" text="Deselect Table Row" />
+      <Button layoutX="443.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="143.0" text="Set Favourite" onMouseClicked="#setFavourite"/>
    </children>
 </AnchorPane>
