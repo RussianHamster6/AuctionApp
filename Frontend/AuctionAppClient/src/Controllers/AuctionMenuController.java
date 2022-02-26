@@ -4,6 +4,7 @@ import ConnectionHandlers.AuctionMenuConnection;
 import Models.Auction;
 import Models.AuctionConnectionDetails;
 import Models.AuctionTableRow;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -21,6 +22,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
@@ -39,10 +42,14 @@ public class AuctionMenuController extends Controller implements Initializable {
     @FXML
     TableColumn<AuctionTableRow, Boolean> favCol;
     @FXML
+    TableColumn<AuctionTableRow, String> endTimeCol;
+    @FXML
     TextField searchText;
 
     public ObservableList<AuctionTableRow> ATRList;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm");
     private Boolean filterFav = false;
+    private Boolean filterDateTime = false;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -61,10 +68,11 @@ public class AuctionMenuController extends Controller implements Initializable {
             startingBidCol.setCellValueFactory(new PropertyValueFactory<>("startingBid"));
             biddingIncrementCol.setCellValueFactory(new PropertyValueFactory<>("biddingIncrement"));
             favCol.setCellValueFactory(new PropertyValueFactory<>("favourite"));
+            endTimeCol.setCellValueFactory(new PropertyValueFactory<>("auctionEndTime"));
+            endTimeCol.setCellValueFactory(x -> new SimpleStringProperty(x.getValue().getAuctionEndTime().format(formatter)));
 
             new Thread(aucConn).start();
             out.writeObject(new AuctionConnectionDetails("GETALLAUC"));
-
         } catch (UnknownHostException e){
             System.err.println("Unknown Host");
         } catch (IOException e) {
@@ -80,7 +88,7 @@ public class AuctionMenuController extends Controller implements Initializable {
 
     public void populateTable(ArrayList<Auction> auctionArrayList){
         for (Auction a : auctionArrayList){
-            var toAdd = new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement);
+            var toAdd = new AuctionTableRow(a.itemName,a.auctionHistory.get(0).amount,a.bidIncrement, a.auctionEndDateTime);
             AuctionTable.getItems().add(toAdd);
         }
     }
@@ -151,6 +159,32 @@ public class AuctionMenuController extends Controller implements Initializable {
         }
         else{
             filterFav = false;
+            AuctionTable.setItems(ATRList);
+        }
+
+        AuctionTable.setItems(AFiltered);
+    }
+
+    public void filterCompleteAuctions(){
+        FilteredList<AuctionTableRow> AFiltered = new FilteredList<>(ATRList);
+
+        if(!filterDateTime){
+            filterDateTime = true;
+            LocalDateTime now = LocalDateTime.now();
+
+            Predicate<AuctionTableRow> pred = auctionTableRow -> {
+                if(auctionTableRow.getAuctionEndTime().isBefore(now)){
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            };
+
+            AFiltered.setPredicate(pred);
+        }
+        else{
+            filterDateTime = false;
             AuctionTable.setItems(ATRList);
         }
 

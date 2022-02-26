@@ -44,11 +44,14 @@ public class Main {
     }
 
     public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository){
+        //Add mock auctions to aucList
         aucList.add(new Auction("Temp", 1, 10,1));
         aucList.add(new Auction("Auction for Stuff",10,100,5));
+        aucList.add(new Auction("Ended Auction", 1, 0, -1));
         //GetAuctionByName mocks
         Mockito.when(auctionRepository.getAuctionByName("Temp")).thenReturn(aucList.get(0));
         Mockito.when(auctionRepository.getAuctionByName(("Auction for Stuff"))).thenReturn(aucList.get(1));
+        Mockito.when(auctionRepository.getAuctionByName(("Ended Auction"))).thenReturn(aucList.get(2));
         //GetAllAuctionMock
         Mockito.when(auctionRepository.getAllAuctions()).thenReturn(aucList);
     }

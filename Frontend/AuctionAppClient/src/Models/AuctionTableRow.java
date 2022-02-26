@@ -3,16 +3,20 @@ package Models;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 
+import java.time.LocalDateTime;
+
 public class AuctionTableRow {
     private String itemName;
     private float startingBid;
     private float biddingIncrement;
+    private LocalDateTime auctionEndTime;
     private boolean favourite;
 
-    public AuctionTableRow(String IN, float SB, float BI){
+    public AuctionTableRow(String IN, float SB, float BI, LocalDateTime auctionEndTime){
         this.itemName = IN;
         this.startingBid = SB;
         this.biddingIncrement = BI;
+        this.auctionEndTime = auctionEndTime;
         this.favourite = false;
     }
 
@@ -26,6 +30,7 @@ public class AuctionTableRow {
     public float getBiddingIncrement(){
         return this.biddingIncrement;
     }
+    public LocalDateTime getAuctionEndTime(){ return this.auctionEndTime;}
     public boolean isFavourite(){
         return this.favourite;
     }
@@ -40,6 +45,7 @@ public class AuctionTableRow {
     public void setBiddingIncrement(float biddingIncrement){
         this.biddingIncrement = biddingIncrement;
     }
+    public void setAuctionEndTime(LocalDateTime auctionEndTime) {this.auctionEndTime = auctionEndTime; }
     public void setFavourite(boolean favourite) {
         this.favourite = favourite;
     }
