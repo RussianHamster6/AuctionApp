@@ -2,12 +2,9 @@ package ConnectionHandlers;
 
 import Controllers.AuctionController;
 import Models.Auction;
-import Models.Bid;
 import javafx.application.Platform;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
@@ -31,6 +28,11 @@ public class AuctionConnection implements Runnable {
                     String strServerResponse = null;
 
                     Object input = in.readObject();
+
+                    if(input == null) {
+                        break;
+                    }
+
                     var x = input.getClass();
 
                     if(x.isInstance("string")){
@@ -38,6 +40,11 @@ public class AuctionConnection implements Runnable {
                         System.out.println(strServerResponse);
                         Platform.runLater(() -> {
                             auctionController.alert("This auction has ended");
+                            try {
+                                auctionController.BackButtonPress();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         });
                     }
                     else{
@@ -51,12 +58,6 @@ public class AuctionConnection implements Runnable {
                 }
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
-            }finally {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
     }
 }

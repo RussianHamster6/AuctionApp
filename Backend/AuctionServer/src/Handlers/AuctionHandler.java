@@ -1,6 +1,7 @@
 package Handlers;
 
 import Models.Auction;
+import Models.AuctionConnectionDetails;
 import Models.Bid;
 import Repository.AuctionRepository;
 
@@ -42,7 +43,7 @@ public class AuctionHandler implements Runnable{
                 Object input = in.readObject();
                 var x = input.getClass();
                 if(x.isInstance("string")){
-                    String aucString = (String) input;
+                    String aucString = input.toString();
                     //Get the Auction they want to connect to
                     this.auction = this.auctionRepository.getAuctionByName(aucString);
                     out.writeObject(auction);
@@ -52,6 +53,22 @@ public class AuctionHandler implements Runnable{
                     Duration duration = Duration.between(now, auction.auctionEndDateTime);
 
                     service.schedule(new AuctionTerminationHandler(this), duration.getSeconds(), TimeUnit.SECONDS);
+                }
+                else if (x.isInstance(new AuctionConnectionDetails("foo"))) {
+                    AuctionConnectionDetails ACD = (AuctionConnectionDetails) input;
+                    String aucString = ACD.action;
+                    if(aucString.equals("GOINGBACK")){
+                        clients.remove(this);
+                        terminateFlag = false;
+                    }
+                    else if(aucString.equals("GETALLAUC")){
+                        //gets all auctions and writes that out
+                        ArrayList<Auction> allAuctions = this.auctionRepository.getAllAuctions();
+                        out.writeObject(allAuctions);
+                        clients.remove(this);
+                        //sets terminate flag to false so the thread closes.
+                        terminateFlag = false;
+                    }
                 }
                 else{
                     Bid bid = (Bid) input;
@@ -64,25 +81,26 @@ public class AuctionHandler implements Runnable{
         catch (IOException | ClassNotFoundException | ClassCastException e){
             e.printStackTrace();
         }
-        finally {
+        /*finally {
             try {
                 in.close();
                 out.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     private void updateAuction(Bid newBid) throws IOException {
         this.auction.registerBid(newBid);
 
         for (AuctionHandler aHandler : clients ){
-            aHandler.out.reset();
-            aHandler.auction = this.auction;
-            aHandler.out.writeObject(this.auction);
+            if(aHandler.auction.itemName.equals(this.auction.itemName)){
+                aHandler.out.reset();
+                aHandler.auction = this.auction;
+                aHandler.out.writeObject(this.auction);
+            }
         }
-        //Write to mocking framework
     }
 
 }

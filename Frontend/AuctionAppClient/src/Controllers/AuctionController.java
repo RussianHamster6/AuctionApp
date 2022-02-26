@@ -2,25 +2,26 @@ package Controllers;
 
 import ConnectionHandlers.AuctionConnection;
 import Models.Auction;
+import Models.AuctionConnectionDetails;
 import Models.Bid;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-
+import javafx.stage.Stage;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-public class AuctionController implements Initializable {
+public class AuctionController extends Controller implements Initializable {
 
     @FXML
     public TextField highBidText;
@@ -31,14 +32,28 @@ public class AuctionController implements Initializable {
     @FXML
     public TextArea auctionLog;
 
-    private Socket socket;
-    private AuctionConnection aucConn;
     private ObjectOutputStream out;
+    private String auctionName;
     public Auction auction;
+
+    public AuctionController(String aucName){
+        this.auctionName = aucName;
+    }
 
     public void BidButtonPress() throws IOException {
         Bid newBid = new Bid("ClientId", auction.currentHighBid.amount + auction.bidIncrement);
         out.writeObject(newBid);
+    }
+
+    public void BackButtonPress() throws IOException {
+        out.writeObject(new AuctionConnectionDetails("GOINGBACK"));
+        Stage stage = (Stage) highBidText.getScene().getWindow();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));
+        stage.setTitle("Auction App");
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     @Override
@@ -48,12 +63,12 @@ public class AuctionController implements Initializable {
         int portNumber = 9090;
 
         try {
-            socket = new Socket(hostName, portNumber);
-            aucConn = new AuctionConnection(socket, this);
+            Socket socket = new Socket(hostName, portNumber);
+            AuctionConnection aucConn = new AuctionConnection(socket, this);
             out = new ObjectOutputStream(socket.getOutputStream());
 
             new Thread(aucConn).start();
-            out.writeObject("Auction for Stuff");
+            out.writeObject(auctionName);
 
         } catch (UnknownHostException e){
             System.err.println("Unknown Host");
@@ -86,11 +101,5 @@ public class AuctionController implements Initializable {
 
         new Thread(task).run();
 
-    }
-
-    public void alert(String alertMessage){
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setContentText(alertMessage);
-        a.show();
     }
 }
