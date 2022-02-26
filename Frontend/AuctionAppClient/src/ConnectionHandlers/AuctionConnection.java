@@ -40,6 +40,11 @@ public class AuctionConnection implements Runnable {
                         System.out.println(strServerResponse);
                         Platform.runLater(() -> {
                             auctionController.alert("This auction has ended");
+                            try {
+                                auctionController.BackButtonPress();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         });
                     }
                     else{

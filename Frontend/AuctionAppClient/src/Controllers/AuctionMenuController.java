@@ -1,8 +1,8 @@
 package Controllers;
 
-import ConnectionHandlers.AuctionConnection;
 import ConnectionHandlers.AuctionMenuConnection;
 import Models.Auction;
+import Models.AuctionConnectionDetails;
 import Models.AuctionTableRow;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -12,11 +12,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -25,7 +23,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 public class AuctionMenuController extends Controller implements Initializable {
@@ -66,7 +63,7 @@ public class AuctionMenuController extends Controller implements Initializable {
             favCol.setCellValueFactory(new PropertyValueFactory<>("favourite"));
 
             new Thread(aucConn).start();
-            out.writeObject("GETALLAUC");
+            out.writeObject(new AuctionConnectionDetails("GETALLAUC"));
 
         } catch (UnknownHostException e){
             System.err.println("Unknown Host");

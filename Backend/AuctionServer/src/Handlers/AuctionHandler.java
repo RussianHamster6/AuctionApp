@@ -1,6 +1,7 @@
 package Handlers;
 
 import Models.Auction;
+import Models.AuctionConnectionDetails;
 import Models.Bid;
 import Repository.AuctionRepository;
 
@@ -43,6 +44,19 @@ public class AuctionHandler implements Runnable{
                 var x = input.getClass();
                 if(x.isInstance("string")){
                     String aucString = input.toString();
+                    //Get the Auction they want to connect to
+                    this.auction = this.auctionRepository.getAuctionByName(aucString);
+                    out.writeObject(auction);
+                    ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+
+                    LocalDateTime now = LocalDateTime.now();
+                    Duration duration = Duration.between(now, auction.auctionEndDateTime);
+
+                    service.schedule(new AuctionTerminationHandler(this), duration.getSeconds(), TimeUnit.SECONDS);
+                }
+                else if (x.isInstance(new AuctionConnectionDetails("foo"))) {
+                    AuctionConnectionDetails ACD = (AuctionConnectionDetails) input;
+                    String aucString = ACD.action;
                     if(aucString.equals("GOINGBACK")){
                         clients.remove(this);
                         terminateFlag = false;
@@ -55,18 +69,6 @@ public class AuctionHandler implements Runnable{
                         //sets terminate flag to false so the thread closes.
                         terminateFlag = false;
                     }
-                    else{
-                        //Get the Auction they want to connect to
-                        this.auction = this.auctionRepository.getAuctionByName(aucString);
-                        out.writeObject(auction);
-                        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-
-                        LocalDateTime now = LocalDateTime.now();
-                        Duration duration = Duration.between(now, auction.auctionEndDateTime);
-
-                        service.schedule(new AuctionTerminationHandler(this), duration.getSeconds(), TimeUnit.SECONDS);
-                    }
-
                 }
                 else{
                     Bid bid = (Bid) input;
