@@ -1,8 +1,5 @@
 package Models;
 
-import javafx.beans.Observable;
-import javafx.collections.ObservableList;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

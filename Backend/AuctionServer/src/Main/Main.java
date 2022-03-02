@@ -20,7 +20,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         ServerSocket listener = new ServerSocket(9090);
 
-        //TEMP
+        //Mock auctionRepository
         AuctionRepository auctionRepository = Mockito.mock(AuctionRepository.class);
         //AuctionList config
         ArrayList<Auction> aucList = new ArrayList<>();
@@ -36,6 +36,7 @@ public class Main {
 
             //adds new auctionThread to auctionHandlers list
             AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, auctionRepository);
+
             auctionHandlers.add(auctionThread);
 
             pool.execute(auctionThread);

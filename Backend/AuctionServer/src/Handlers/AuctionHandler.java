@@ -2,6 +2,7 @@ package Handlers;
 
 import Models.Auction;
 import Models.AuctionConnectionDetails;
+import Models.AuctionTableRow;
 import Models.Bid;
 import Repository.AuctionRepository;
 
@@ -21,6 +22,7 @@ public class AuctionHandler implements Runnable{
     public ObjectOutputStream out;
     private ObjectInputStream in;
     private ArrayList<AuctionHandler> clients;
+    //private ArrayList<>
     private Auction auction;
     public Boolean terminateFlag = true;
     private AuctionRepository auctionRepository;
@@ -69,6 +71,23 @@ public class AuctionHandler implements Runnable{
                         //sets terminate flag to false so the thread closes.
                         terminateFlag = false;
                     }
+                    else if(aucString.equals("notificationGoingBack")){
+                        //Need to do this on the client
+                        terminateFlag = false;
+                        clients.remove(this);
+                    }
+                }
+                else if(x.isInstance(new ArrayList<AuctionTableRow>())){
+                    //if arrayList of auctions
+
+                    ArrayList<AuctionTableRow> tableRows = (ArrayList<AuctionTableRow>) input;
+                    ArrayList<Auction> auctionsToSend = new ArrayList<Auction>();
+
+                    for(AuctionTableRow ATR: tableRows){
+                        auctionsToSend.add(auctionRepository.getAuctionByName(ATR.getItemName()));
+                    }
+
+                    out.writeObject(auctionsToSend);
                 }
                 else{
                     Bid bid = (Bid) input;
@@ -81,25 +100,15 @@ public class AuctionHandler implements Runnable{
         catch (IOException | ClassNotFoundException | ClassCastException e){
             e.printStackTrace();
         }
-        /*finally {
-            try {
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
     }
 
     private void updateAuction(Bid newBid) throws IOException {
         this.auction.registerBid(newBid);
 
-        for (AuctionHandler aHandler : clients ){
-            if(aHandler.auction.itemName.equals(this.auction.itemName)){
-                aHandler.out.reset();
-                aHandler.auction = this.auction;
-                aHandler.out.writeObject(this.auction);
-            }
+        for (AuctionHandler aHandler : clients){
+            aHandler.out.reset();
+            aHandler.auction = this.auction;
+            aHandler.out.writeObject(this.auction);
         }
     }
 

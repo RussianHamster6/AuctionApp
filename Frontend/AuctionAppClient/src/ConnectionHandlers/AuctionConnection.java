@@ -51,8 +51,6 @@ public class AuctionConnection implements Runnable {
                         serverResponse = (Auction) input;
                         if(serverResponse == null) break;
 
-                        System.out.println("Server Response: ");
-                        System.out.println(serverResponse.itemName);
                         this.auctionController.updateAucFields(serverResponse);
                     }
                 }

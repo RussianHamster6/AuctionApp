@@ -48,12 +48,7 @@ public class AuctionController extends Controller implements Initializable {
     public void BackButtonPress() throws IOException {
         out.writeObject(new AuctionConnectionDetails("GOINGBACK"));
         Stage stage = (Stage) highBidText.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));
-        stage.setTitle("Auction App");
-        stage.setScene(new Scene(root));
-        stage.show();
+        stage.close();
     }
 
     @Override
@@ -79,27 +74,30 @@ public class AuctionController extends Controller implements Initializable {
     }
 
     public void updateAucFields(Auction auc){
-        this.auction = auc;
+        if(auc.itemName.equals(this.auctionName)) {
+            this.auction = auc;
 
-        Task task = new Task<Void>(){
+            Task task = new Task<Void>() {
 
-            @Override
-            protected Void call() throws Exception {
-                highBidText.setText(String.valueOf(auction.currentHighBid.amount));
-                bidIncrementText.setText(String.valueOf(auction.bidIncrement));
-                itemNameText.setText(auction.itemName);
+                @Override
+                protected Void call() throws Exception {
+                    highBidText.setText(String.valueOf(auction.currentHighBid.amount));
+                    bidIncrementText.setText(String.valueOf(auction.bidIncrement));
+                    itemNameText.setText(auction.itemName);
 
-                String auctionLogtext = new String();
-                for(Bid bid : auction.auctionHistory){
-                    auctionLogtext = auctionLogtext + "\n" + bid.bidder + ": " + String.valueOf(bid.amount);
+                    String auctionLogtext = new String();
+                    for (Bid bid : auction.auctionHistory) {
+                        auctionLogtext = auctionLogtext + "\n" + bid.bidder + ": " + String.valueOf(bid.amount);
+                    }
+                    auctionLog.setText(auctionLogtext);
+
+                    return null;
                 }
-                auctionLog.setText(auctionLogtext);
 
-                return null;
+                ;
             };
-        };
 
-        new Thread(task).run();
-
+            new Thread(task).run();
+        }
     }
 }
