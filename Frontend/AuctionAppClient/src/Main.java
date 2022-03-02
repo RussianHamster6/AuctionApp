@@ -10,12 +10,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader = new FXMLLoader();
-        /*loader.setLocation(getClass().getResource("/views/auction.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("/views/auction.fxml"));
-         */
         loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
         Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));
-        //AuctionController ac = loader.getController();
         primaryStage.setTitle("Auction App");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="513.0" prefWidth="292.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TextArea fx:id="notificationText" editable="false" layoutX="13.0" layoutY="29.0" prefHeight="470.0" prefWidth="266.0" wrapText="true" />
+      <Text layoutX="112.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Notifications" />
+   </children>
+</AnchorPane>

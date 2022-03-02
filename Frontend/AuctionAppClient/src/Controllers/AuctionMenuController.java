@@ -1,6 +1,7 @@
 package Controllers;
 
 import ConnectionHandlers.AuctionMenuConnection;
+import ConnectionHandlers.NotificationConnection;
 import Models.Auction;
 import Models.AuctionConnectionDetails;
 import Models.AuctionTableRow;
@@ -19,14 +20,17 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class AuctionMenuController extends Controller implements Initializable {
 
@@ -97,7 +101,7 @@ public class AuctionMenuController extends Controller implements Initializable {
         if(AuctionTable.getSelectionModel().getSelectedItem() != null) {
             if (event.getClickCount() > 1) {
 
-                Stage stage = (Stage) AuctionTable.getScene().getWindow();
+                Stage stage = new Stage();
 
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getResource("/views/auction.fxml"));
@@ -106,6 +110,7 @@ public class AuctionMenuController extends Controller implements Initializable {
                 Parent root = loader.load();
 
                 stage.setScene(new Scene(root));
+                stage.show();
             }
         }
     }
@@ -189,5 +194,31 @@ public class AuctionMenuController extends Controller implements Initializable {
         }
 
         AuctionTable.setItems(AFiltered);
+    }
+
+    public void showNotifications() throws IOException {
+        List<AuctionTableRow> auctionTableRows = this.AuctionTable.getItems().stream().toList();
+        ArrayList<AuctionTableRow> favourites = new ArrayList<>();
+
+        for(AuctionTableRow atr : auctionTableRows){
+            if (atr.isFavourite()){
+                favourites.add(atr);
+            }
+        }
+
+        if(favourites.size() == 0 ){
+            this.alert("You have not got any favourites");
+        }
+        else{
+            Stage newStage = new Stage();
+            FXMLLoader loader = new FXMLLoader();
+            NotificationController notificationController = new NotificationController(favourites);
+            loader.setLocation(getClass().getResource("/views/notifications.fxml"));
+            loader.setController(notificationController);
+            Parent root = loader.load();
+            newStage.setTitle("notifications");
+            newStage.setScene(new Scene(root));
+            newStage.show();
+        }
     }
 }
