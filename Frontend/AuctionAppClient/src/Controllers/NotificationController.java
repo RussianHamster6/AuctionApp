@@ -1,14 +1,13 @@
 package Controllers;
 
-import ConnectionHandlers.AuctionConnection;
 import ConnectionHandlers.NotificationConnection;
 import Models.Auction;
+import Models.AuctionConnectionDetails;
 import Models.AuctionTableRow;
-import Models.Bid;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -27,6 +26,12 @@ public class NotificationController extends Controller implements Initializable 
     private ArrayList<AuctionTableRow> auctionTableRows;
     private ArrayList<Auction> followedAuctions;
 
+    private String hostName;
+    private int portNumber;
+
+    private Socket socket;
+    private NotificationConnection notificationConnection;
+
     //Constructor
     public NotificationController(ArrayList<AuctionTableRow> inAuc){
         auctionLogText = new String();
@@ -37,12 +42,12 @@ public class NotificationController extends Controller implements Initializable 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         //Do Connectiony Stuff
-        String hostName = "127.0.0.1";
-        int portNumber = 9090;
+        hostName = "127.0.0.1";
+        portNumber = 9090;
 
         try {
-            Socket socket = new Socket(hostName, portNumber);
-            NotificationConnection notificationConnection = new NotificationConnection(socket, this);
+            socket = new Socket(hostName, portNumber);
+            notificationConnection = new NotificationConnection(socket, this);
             out = new ObjectOutputStream(socket.getOutputStream());
 
             new Thread(notificationConnection).start();
@@ -74,6 +79,12 @@ public class NotificationController extends Controller implements Initializable 
             this.auctionLogText = this.auctionLogText + "\n" + auction.itemName + " Current High Bid - " + auction.currentHighBid.bidder + ": " + String.valueOf(auction.currentHighBid.amount);
         }
         notificationText.setText(this.auctionLogText);
+    }
+
+    public void closeNotifications() throws IOException {
+        out.writeObject(new AuctionConnectionDetails("notificationGoingBack"));
+        Stage stage = (Stage) notificationText.getScene().getWindow();
+        stage.close();
     }
 
 }
