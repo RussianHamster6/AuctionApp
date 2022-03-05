@@ -1,15 +1,21 @@
 package Main;
 import Handlers.AuctionHandler;
 import Models.Auction;
+import Models.Login;
 import Repository.AuctionRepository;
+import Repository.UserRepository;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static org.mockito.ArgumentMatchers.anyString;
 
 public class Main {
 
@@ -22,10 +28,16 @@ public class Main {
 
         //Mock auctionRepository
         AuctionRepository auctionRepository = Mockito.mock(AuctionRepository.class);
+        UserRepository userRepository = Mockito.mock(UserRepository.class);
         //AuctionList config
         ArrayList<Auction> aucList = new ArrayList<>();
-
-        configureMocks(aucList, auctionRepository);
+        ArrayList<Login> loginList = new ArrayList<>();
+        try{
+            configureMocks(aucList, auctionRepository, loginList, userRepository);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
 
         while(true){
             System.out.println("Waiting for client connection...");
@@ -35,7 +47,7 @@ public class Main {
             System.out.println("Connected to client!");
 
             //adds new auctionThread to auctionHandlers list
-            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, auctionRepository);
+            AuctionHandler auctionThread = new AuctionHandler(client, auctionHandlers, auctionRepository, userRepository);
 
             auctionHandlers.add(auctionThread);
 
@@ -44,16 +56,35 @@ public class Main {
 
     }
 
-    public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository){
+    public static void removeClient(AuctionHandler client){
+        auctionHandlers.remove(client);
+    }
+
+    public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository, ArrayList<Login>loginList, UserRepository userRepository) throws NoSuchAlgorithmException {
         //Add mock auctions to aucList
         aucList.add(new Auction("Temp", 1, 10,1));
         aucList.add(new Auction("Auction for Stuff",10,100,5));
         aucList.add(new Auction("Ended Auction", 1, 0, -1));
         //GetAuctionByName mocks
-        Mockito.when(auctionRepository.getAuctionByName("Temp")).thenReturn(aucList.get(0));
-        Mockito.when(auctionRepository.getAuctionByName(("Auction for Stuff"))).thenReturn(aucList.get(1));
-        Mockito.when(auctionRepository.getAuctionByName(("Ended Auction"))).thenReturn(aucList.get(2));
+        for(Auction auc: aucList){
+            Mockito.when(auctionRepository.getAuctionByName(auc.itemName)).thenReturn(auc);
+        }
         //GetAllAuctionMock
         Mockito.when(auctionRepository.getAllAuctions()).thenReturn(aucList);
+        //Mock Users
+        loginList.add(new Login("user", "pass"));
+        loginList.add(new Login("secondUser", "pass2"));
+        //GetUserByName mocks
+        Mockito.when(userRepository.getUserByUsername(anyString())).thenReturn(null);
+        for(Login login: loginList){
+            //Hash password
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(login.password.getBytes());
+            String passwordHashed = new String(messageDigest.digest());
+
+            Login newLogin = new Login(login.userName, passwordHashed);
+
+            Mockito.when(userRepository.getUserByUsername(login.userName)).thenReturn(newLogin);
+        }
     }
 }

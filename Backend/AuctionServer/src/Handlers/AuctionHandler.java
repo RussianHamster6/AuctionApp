@@ -1,17 +1,14 @@
 package Handlers;
 
-import Models.Auction;
-import Models.AuctionConnectionDetails;
-import Models.AuctionTableRow;
-import Models.Bid;
+import Models.*;
 import Repository.AuctionRepository;
+import Repository.UserRepository;
 
 import java.io.*;
 import java.net.Socket;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +23,13 @@ public class AuctionHandler implements Runnable{
     private Auction auction;
     public Boolean terminateFlag = true;
     private AuctionRepository auctionRepository;
+    private UserRepository userRepository;
 
-    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, AuctionRepository repository) throws IOException {
+    public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, AuctionRepository repository, UserRepository userRepository) throws IOException {
         this.socket = client;
         this.clients = clients;
         this.auctionRepository = repository;
+        this.userRepository = userRepository;
         InputStream inputStream = client.getInputStream();
         OutputStream outputStream = client.getOutputStream();
         out = new ObjectOutputStream(outputStream);
@@ -61,6 +60,7 @@ public class AuctionHandler implements Runnable{
                     String aucString = ACD.action;
                     if(aucString.equals("GOINGBACK")){
                         clients.remove(this);
+                        Main.Main.removeClient(this);
                         terminateFlag = false;
                     }
                     else if(aucString.equals("GETALLAUC")){
@@ -75,6 +75,7 @@ public class AuctionHandler implements Runnable{
                         //Need to do this on the client
                         terminateFlag = false;
                         clients.remove(this);
+                        Main.Main.removeClient(this);
                     }
                 }
                 else if(x.isInstance(new ArrayList<AuctionTableRow>())){
@@ -88,6 +89,21 @@ public class AuctionHandler implements Runnable{
                     }
 
                     out.writeObject(auctionsToSend);
+                }
+                else if(x.isInstance(new Login("User","pass"))){
+                    Login loginAttempt = (Login) input;
+                    clients.remove(this);
+                    Main.Main.removeClient(this);
+                    //get login
+                    Login fromRepo = this.userRepository.getUserByUsername(loginAttempt.userName);
+                    //if get login is not null then send true
+                    if(fromRepo != null && fromRepo.password.equals(loginAttempt.password)){
+                        out.writeObject(true);
+                    }
+                    //else send false
+                    else{
+                        out.writeObject(false);
+                    }
                 }
                 else{
                     Bid bid = (Bid) input;

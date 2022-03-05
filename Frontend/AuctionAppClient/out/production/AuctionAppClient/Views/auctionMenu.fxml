@@ -18,7 +18,7 @@
         </columns>
       </TableView>
       <TextField fx:id="searchText" layoutX="325.0" layoutY="23.0" prefHeight="25.0" prefWidth="261.0" promptText="Search Auction Name" />
-      <Button layoutX="36.0" layoutY="23.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="130.0" text="Log Out" />
+      <Button layoutX="36.0" layoutY="23.0" mnemonicParsing="false"  onMouseClicked="#logout" prefHeight="25.0" prefWidth="130.0" text="Log Out" />
       <Button layoutX="182.0" layoutY="23.0" mnemonicParsing="false" onMouseClicked="#Deselect" prefHeight="25.0" prefWidth="130.0" text="Deselect Table Row" />
       <Button layoutX="443.0" layoutY="60.0" mnemonicParsing="false" onMouseClicked="#setFavourite" prefHeight="25.0" prefWidth="143.0" text="Set Favourite" />
       <Button layoutX="312.0" layoutY="60.0" mnemonicParsing="false" onMouseClicked="#filterFavourite" prefHeight="25.0" prefWidth="122.0" text="Filter Favourites" />
