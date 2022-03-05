@@ -5,6 +5,7 @@ import ConnectionHandlers.NotificationConnection;
 import Models.Auction;
 import Models.AuctionConnectionDetails;
 import Models.AuctionTableRow;
+import Models.Login;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -105,7 +106,9 @@ public class AuctionMenuController extends Controller implements Initializable {
 
                 FXMLLoader loader = new FXMLLoader();
                 loader.setLocation(getClass().getResource("/views/auction.fxml"));
-                AuctionController auctionController = new AuctionController(AuctionTable.getSelectionModel().getSelectedItem().getItemName());
+                Stage thisStage = (Stage) AuctionTable.getScene().getWindow();
+                Login currentUser = (Login) thisStage.getUserData();
+                AuctionController auctionController = new AuctionController(AuctionTable.getSelectionModel().getSelectedItem().getItemName(), currentUser);
                 loader.setController(auctionController);
                 Parent root = loader.load();
 
@@ -220,5 +223,16 @@ public class AuctionMenuController extends Controller implements Initializable {
             newStage.setScene(new Scene(root));
             newStage.show();
         }
+    }
+
+    public void logout() throws IOException {
+        Stage thisStage = (Stage) AuctionTable.getScene().getWindow();
+        thisStage.setUserData(null);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/login.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/views/login.fxml"));
+        thisStage.setTitle("Auction App");
+        thisStage.setScene(new Scene(root));
+        thisStage.show();
     }
 }

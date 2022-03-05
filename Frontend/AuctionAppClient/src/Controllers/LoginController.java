@@ -1,6 +1,5 @@
 package Controllers;
 
-import ConnectionHandlers.AuctionMenuConnection;
 import ConnectionHandlers.LoginConnection;
 import Models.Login;
 import javafx.fxml.FXML;
@@ -16,6 +15,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ResourceBundle;
 
 public class LoginController extends Controller implements Initializable {
@@ -44,7 +45,7 @@ public class LoginController extends Controller implements Initializable {
 
     }
 
-    public void loginButtonPressed(){
+    public void loginButtonPressed() throws NoSuchAlgorithmException {
 
         //Error handling
         if(userNameText.getText().isEmpty()){
@@ -54,7 +55,11 @@ public class LoginController extends Controller implements Initializable {
             this.alert("Please input a password");
         }
         else {
-            Login loginDetails = new Login(this.userNameText.getText(), this.passwordText.getText());
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(this.passwordText.getText().getBytes());
+            String passwordHashed = new String(messageDigest.digest());
+
+            Login loginDetails = new Login(this.userNameText.getText(), passwordHashed);
 
             //send login
             try{
@@ -69,6 +74,7 @@ public class LoginController extends Controller implements Initializable {
     public void loginResponse(Boolean isValid) throws IOException {
         if (isValid){
             Stage primaryStage = (Stage) userNameText.getScene().getWindow();
+            primaryStage.setUserData(new Login(userNameText.getText(), passwordText.getText()));
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
             Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));

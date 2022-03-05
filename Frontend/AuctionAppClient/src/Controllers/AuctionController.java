@@ -4,6 +4,7 @@ import ConnectionHandlers.AuctionConnection;
 import Models.Auction;
 import Models.AuctionConnectionDetails;
 import Models.Bid;
+import Models.Login;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 
 public class AuctionController extends Controller implements Initializable {
 
+    private Login currentUser;
     @FXML
     public TextField highBidText;
     @FXML
@@ -36,12 +38,13 @@ public class AuctionController extends Controller implements Initializable {
     private String auctionName;
     public Auction auction;
 
-    public AuctionController(String aucName){
+    public AuctionController(String aucName, Login currentUser){
         this.auctionName = aucName;
+        this.currentUser = currentUser;
     }
 
     public void BidButtonPress() throws IOException {
-        Bid newBid = new Bid("ClientId", auction.currentHighBid.amount + auction.bidIncrement);
+        Bid newBid = new Bid(this.currentUser.userName, auction.currentHighBid.amount + auction.bidIncrement);
         out.writeObject(newBid);
     }
 

@@ -30,7 +30,10 @@ public class LoginConnection implements Runnable{
                 var x = input.getClass();
 
                 if(x.isInstance(true)){
-                    runFlag = false;
+                    Boolean inputBool = (Boolean) input;
+                    if(inputBool){
+                        runFlag = false;
+                    }
                     //then it's good
                     Platform.runLater(() -> {
                         try {
@@ -42,7 +45,6 @@ public class LoginConnection implements Runnable{
 
                 }
                 else{
-                    runFlag = false;
                     Platform.runLater(() -> {
                         this.loginController.alert("Something went wrong, please try again later");
                     });

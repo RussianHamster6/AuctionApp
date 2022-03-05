@@ -97,7 +97,7 @@ public class AuctionHandler implements Runnable{
                     //get login
                     Login fromRepo = this.userRepository.getUserByUsername(loginAttempt.userName);
                     //if get login is not null then send true
-                    if(fromRepo != null){
+                    if(fromRepo != null && fromRepo.password.equals(loginAttempt.password)){
                         out.writeObject(true);
                     }
                     //else send false

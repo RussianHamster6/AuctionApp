@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,8 +32,12 @@ public class Main {
         //AuctionList config
         ArrayList<Auction> aucList = new ArrayList<>();
         ArrayList<Login> loginList = new ArrayList<>();
-
-        configureMocks(aucList, auctionRepository, loginList, userRepository);
+        try{
+            configureMocks(aucList, auctionRepository, loginList, userRepository);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
 
         while(true){
             System.out.println("Waiting for client connection...");
@@ -54,7 +60,7 @@ public class Main {
         auctionHandlers.remove(client);
     }
 
-    public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository, ArrayList<Login>loginList, UserRepository userRepository){
+    public static void configureMocks(ArrayList<Auction> aucList, AuctionRepository auctionRepository, ArrayList<Login>loginList, UserRepository userRepository) throws NoSuchAlgorithmException {
         //Add mock auctions to aucList
         aucList.add(new Auction("Temp", 1, 10,1));
         aucList.add(new Auction("Auction for Stuff",10,100,5));
@@ -71,7 +77,14 @@ public class Main {
         //GetUserByName mocks
         Mockito.when(userRepository.getUserByUsername(anyString())).thenReturn(null);
         for(Login login: loginList){
-            Mockito.when(userRepository.getUserByUsername(login.userName)).thenReturn(login);
+            //Hash password
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(login.password.getBytes());
+            String passwordHashed = new String(messageDigest.digest());
+
+            Login newLogin = new Login(login.userName, passwordHashed);
+
+            Mockito.when(userRepository.getUserByUsername(login.userName)).thenReturn(newLogin);
         }
     }
 }

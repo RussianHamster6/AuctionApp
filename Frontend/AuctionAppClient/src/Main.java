@@ -1,4 +1,5 @@
 import Controllers.AuctionController;
+import Models.Login;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,14 +16,7 @@ public class Main extends Application {
         primaryStage.setTitle("Auction App");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-        /*FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/views/auctionMenu.fxml"));
-        Parent root = FXMLLoader.load(getClass().getResource("/views/auctionMenu.fxml"));
-        primaryStage.setTitle("Auction App");
-        primaryStage.setScene(new Scene(root));
-        primaryStage.show();*/
     }
-
 
     public static void main(String[] args) {
         launch(args);
