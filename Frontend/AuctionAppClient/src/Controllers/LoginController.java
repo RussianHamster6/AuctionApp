@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -24,7 +25,7 @@ public class LoginController extends Controller implements Initializable {
     @FXML
     TextField userNameText;
     @FXML
-    TextField passwordText;
+    PasswordField passwordText;
 
     private String hostName = "127.0.0.1";
     private int portNumber = 9090;

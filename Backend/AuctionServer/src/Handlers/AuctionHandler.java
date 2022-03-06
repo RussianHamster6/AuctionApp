@@ -1,5 +1,6 @@
 package Handlers;
 
+import Helpers.AuctionHandlerHelpers;
 import Models.*;
 import Repository.AuctionRepository;
 import Repository.UserRepository;
@@ -22,18 +23,20 @@ public class AuctionHandler implements Runnable{
     //private ArrayList<>
     private Auction auction;
     public Boolean terminateFlag = true;
-    private AuctionRepository auctionRepository;
-    private UserRepository userRepository;
+    public AuctionRepository auctionRepository;
+    public UserRepository userRepository;
 
     public AuctionHandler(Socket client, ArrayList<AuctionHandler> clients, AuctionRepository repository, UserRepository userRepository) throws IOException {
         this.socket = client;
         this.clients = clients;
         this.auctionRepository = repository;
         this.userRepository = userRepository;
-        InputStream inputStream = client.getInputStream();
-        OutputStream outputStream = client.getOutputStream();
-        out = new ObjectOutputStream(outputStream);
-        in = new ObjectInputStream(inputStream);
+        if(client.isConnected()){
+            InputStream inputStream = client.getInputStream();
+            OutputStream outputStream = client.getOutputStream();
+            out = new ObjectOutputStream(outputStream);
+            in = new ObjectInputStream(inputStream);
+        }
     }
 
     @Override
@@ -58,7 +61,7 @@ public class AuctionHandler implements Runnable{
                 else if (x.isInstance(new AuctionConnectionDetails("foo"))) {
                     AuctionConnectionDetails ACD = (AuctionConnectionDetails) input;
                     String aucString = ACD.action;
-                    if(aucString.equals("GOINGBACK")){
+                    if(aucString.equals("GOINGBACK") || aucString.equals("notificationGoingBack")){
                         clients.remove(this);
                         Main.Main.removeClient(this);
                         terminateFlag = false;
@@ -71,39 +74,17 @@ public class AuctionHandler implements Runnable{
                         //sets terminate flag to false so the thread closes.
                         terminateFlag = false;
                     }
-                    else if(aucString.equals("notificationGoingBack")){
-                        //Need to do this on the client
-                        terminateFlag = false;
-                        clients.remove(this);
-                        Main.Main.removeClient(this);
-                    }
                 }
                 else if(x.isInstance(new ArrayList<AuctionTableRow>())){
                     //if arrayList of auctions
 
                     ArrayList<AuctionTableRow> tableRows = (ArrayList<AuctionTableRow>) input;
-                    ArrayList<Auction> auctionsToSend = new ArrayList<Auction>();
 
-                    for(AuctionTableRow ATR: tableRows){
-                        auctionsToSend.add(auctionRepository.getAuctionByName(ATR.getItemName()));
-                    }
-
-                    out.writeObject(auctionsToSend);
+                    out.writeObject(AuctionHandlerHelpers.GetAuctionsFromTableRows(tableRows, auctionRepository));
                 }
                 else if(x.isInstance(new Login("User","pass"))){
                     Login loginAttempt = (Login) input;
-                    clients.remove(this);
-                    Main.Main.removeClient(this);
-                    //get login
-                    Login fromRepo = this.userRepository.getUserByUsername(loginAttempt.userName);
-                    //if get login is not null then send true
-                    if(fromRepo != null && fromRepo.password.equals(loginAttempt.password)){
-                        out.writeObject(true);
-                    }
-                    //else send false
-                    else{
-                        out.writeObject(false);
-                    }
+                    out.writeObject(AuctionHandlerHelpers.ValidLogin(loginAttempt, clients, this));
                 }
                 else{
                     Bid bid = (Bid) input;
