@@ -1,13 +1,7 @@
 package Repository;
 import Models.Auction;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 //This class exists for me to mock from it. It has no functional purpose other than to be mocked.
 public class AuctionRepository {
